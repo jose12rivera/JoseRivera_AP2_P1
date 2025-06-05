@@ -27,11 +27,11 @@ class TareaviewModel (
             }
         }
     }
-    fun update(tarea: TareaEntity){
+    fun Update(tarea: TareaEntity){
      save(tarea)
     }
 
-    fun Agregartarea(descripcion: String,tiempo: Double){
+    fun Agregartarea(descripcion: String, tiempo: Double){
         val tarea= TareaEntity(
             tareaid = null,
             descripcion=descripcion,
