@@ -28,7 +28,7 @@ class TareaviewModel (
         }
     }
     fun Update(tarea: TareaEntity){
-     save(tarea)
+        savetarea(tarea)
     }
 
     fun Agregartarea(descripcion: String, tiempo: Double){
@@ -37,9 +37,9 @@ class TareaviewModel (
             descripcion=descripcion,
             tiempo=tiempo
         )
-        save(tarea)
+        savetarea(tarea)
     }
-    fun save(tarea: TareaEntity){
+    fun savetarea(tarea: TareaEntity){
         viewModelScope.launch {
             tareaRespository.save(tarea)
             LoadTareas()
@@ -52,7 +52,7 @@ class TareaviewModel (
         }
     }
 
-    fun gettareaIDBY(id: Int): TareaEntity?{
+    fun gettareaIdBY(id: Int): TareaEntity? {
         return  _tarealist.value.find { it.tareaid==id }
     }
 
