@@ -13,7 +13,8 @@ interface Tareadao {
     suspend fun save(tarea:TareaEntity)
     @Query("""Select*From tareas 
         Where tareaid=:id 
-Limit 1""")
+Limit 1
+""")
 
     suspend fun find(id: Int): TareaEntity?
     @Delete

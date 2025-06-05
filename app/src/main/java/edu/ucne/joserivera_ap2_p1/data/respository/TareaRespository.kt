@@ -1,7 +1,5 @@
 package edu.ucne.joserivera_ap2_p1.data.respository
 
-import androidx.room.Delete
-import androidx.room.Query
 import edu.ucne.joserivera_ap2_p1.data.local.dao.Tareadao
 import edu.ucne.joserivera_ap2_p1.data.local.entities.TareaEntity
 import kotlinx.coroutines.flow.Flow
