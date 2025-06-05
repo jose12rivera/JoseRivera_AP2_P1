@@ -2,7 +2,6 @@ package edu.ucne.joserivera_ap2_p1
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,53 +16,49 @@ import edu.ucne.joserivera_ap2_p1.presentation.tareas.TareaScreen
 import edu.ucne.joserivera_ap2_p1.presentation.tareas.TareaviewModel
 import edu.ucne.joserivera_ap2_p1.ui.theme.JoseRivera_AP2_P1Theme
 
-class MainActivity : ComponentActivity() {   override fun onCreate(savedInstanceState: Bundle?) {
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-       val TareaDb= Room.databaseBuilder(
-           applicationContext,
-           TareaDb::class.java,
-           "Tarea.Db"
-       ).fallbackToDestructiveMigration().build()
 
-    val respository= TareaRespository(TareaDb.Tareadao())
+        val tareaDb = Room.databaseBuilder(
+            applicationContext,
+            TareaDb::class.java,
+            "Tarea.db"
+        ).fallbackToDestructiveMigration().build()
+
+        val repository = TareaRespository(tareaDb.Tareadao())
 
         setContent {
             JoseRivera_AP2_P1Theme {
-              val tareaviewModel: TareaviewModel= remember {
-                  TareaviewModel(respository)
-              }
-
+                val viewModel = remember { TareaviewModel(repository) }
                 var mostrarFormulario by remember { mutableStateOf(false) }
-                var selecionartarea by remember { mutableStateOf(TareaEntity(0,"",0.0)) }
+                var tareaSeleccionada by remember { mutableStateOf<TareaEntity?>(null) }
 
-                if (mostrarFormulario){
+                if (mostrarFormulario) {
                     TareaScreen(
-                       tarea=selecionartarea,
-                        OnAgregar = {descripcion,tiempo->
-                            tareaviewModel.Agregartarea(descripcion,tiempo)
-                        }, Oncancelar={
-                            mostrarFormulario =false
-                        }
+                        tarea = tareaSeleccionada ?: TareaEntity(),
+                        onGuardar = { descripcion, tiempo, id ->
+                            viewModel.Agregartarea(descripcion, tiempo,id)
+                            mostrarFormulario = false
+                        },
+                        onCancelar = { mostrarFormulario = false }
                     )
-                }else{
+                } else {
+                    val lista by viewModel.tarealist.collectAsState()
                     TareaListScreen(
-                       tarealist=tareaviewModel.tarealist.collectAsState().value,
-                        Oncreate ={
-                            selecionartarea= TareaEntity(0,"",0.0)
-                            mostrarFormulario =true
-                        },OnDelete={tarea->
-                            tareaviewModel.tareadelete(tarea)
-                        },OnEditar={tarea->
-                            selecionartarea= tarea
-                            mostrarFormulario =true
+                        tarealist = lista,
+                        onCreate = {
+                            tareaSeleccionada = null
+                            mostrarFormulario = true
+                        },
+                        onDelete = { viewModel.tareadelete(it) },
+                        onEditar = {
+                            tareaSeleccionada = it
+                            mostrarFormulario = true
                         }
-
-
                     )
                 }
             }
         }
     }
 }
-

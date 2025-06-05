@@ -7,8 +7,8 @@ import androidx.room.PrimaryKey
 data class TareaEntity(
     @PrimaryKey
 
-    val tareaid: Int?,
+    val tareaid: Int=0,
     val descripcion: String="",
-    val tiempo:  Double
+    val tiempo:  Int=0
 
 )

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,6 +17,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,84 +34,77 @@ import edu.ucne.joserivera_ap2_p1.data.local.entities.TareaEntity
 
 @Composable
 fun TareaListScreen(
-    tarealist:List<TareaEntity>,
-    Oncreate:()-> Unit,
-    OnDelete:(TareaEntity)-> Unit,
-    OnEditar:(TareaEntity)-> Unit
-){
+    tarealist: List<TareaEntity>,
+    onCreate: () -> Unit,
+    onDelete: (TareaEntity) -> Unit,
+    onEditar: (TareaEntity) -> Unit
+) {
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = Oncreate,
+                onClick = onCreate,
                 containerColor = Color(0xFF6650a4),
                 contentColor = Color.White
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Agregar")
             }
         }
-    ){ PaddingValues->
-        Column (
-            modifier = Modifier.fillMaxSize().
-            background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF6650a4), Color(0xFF6650a4))
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(listOf(Color(0xFF6650a4), Color(0xFF6650a4)))
                 )
-            ).padding(PaddingValues).padding(16.dp)
-        ){
-            Text(text = "Lista de tareas",
-                style = TextStyle(
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-
-                ),
-                modifier = Modifier.fillMaxSize()
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Lista de tareas",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
 
-            LazyColumn (verticalArrangement = Arrangement.Center){
-                items (tarealist){tarea->
-                    TareaRow(tarea,OnEditar,OnDelete)
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(tarealist) { tarea ->
+                    TareaRow(tarea, onDelete, onEditar)
                 }
             }
         }
     }
-
 }
 
 @Composable
 fun TareaRow(
     tarea: TareaEntity,
-    OnDelete:(TareaEntity)-> Unit,
-    OnEditar:(TareaEntity)-> Unit
-){
+    onDelete: (TareaEntity) -> Unit,
+    onEditar: (TareaEntity) -> Unit
+) {
     Card(
         elevation = CardDefaults.cardElevation(4.dp),
-        modifier = Modifier.fillMaxSize()
-    ){
-        Row (modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
-        ){
+        ) {
             Column {
-                Row(verticalAlignment = Alignment.CenterVertically){
-                    Text(text = "descripcion:", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Text(text = tarea.descripcion,  fontSize = 16.sp)
-                }
-                Row(verticalAlignment = Alignment.CenterVertically){
-                    Text(text = "tiempo:", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Text(text = tarea.tiempo.toString(),  fontSize = 16.sp)
-                }
+                Text("Descripción: ${tarea.descripcion}", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                Text("Tiempo: ${tarea.tiempo} minutos", fontSize = 14.sp)
             }
-
             Row {
-                FloatingActionButton(onClick = {OnEditar(tarea)}) {
-                    Icon(Icons.Default.Edit, contentDescription = "editar")
+                IconButton(onClick = { onEditar(tarea) }) {
+                    Icon(Icons.Default.Edit, contentDescription = "Editar")
                 }
-                FloatingActionButton(onClick = {OnDelete(tarea)}) {
-                    Icon(Icons.Default.Delete, contentDescription = "eliminar")
+                IconButton(onClick = { onDelete(tarea) }) {
+                    Icon(Icons.Default.Delete, contentDescription = "Eliminar")
                 }
             }
         }
     }
 }
-

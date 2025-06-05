@@ -31,9 +31,9 @@ class TareaviewModel (
         savetarea(tarea)
     }
 
-    fun Agregartarea(descripcion: String, tiempo: Double){
+    fun Agregartarea(descripcion: String,tiempo: Int, id: Int?){
         val tarea= TareaEntity(
-            tareaid = null,
+            tareaid = id?:0,
             descripcion=descripcion,
             tiempo=tiempo
         )

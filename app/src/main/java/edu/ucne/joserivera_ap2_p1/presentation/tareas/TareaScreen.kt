@@ -1,5 +1,6 @@
 package edu.ucne.joserivera_ap2_p1.presentation.tareas
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,54 +29,46 @@ import edu.ucne.joserivera_ap2_p1.data.local.entities.TareaEntity
 @Composable
 fun TareaScreen(
     tarea: TareaEntity,
-    OnAgregar:(String, Double)-> Unit,
-    Oncancelar:()-> Unit
-){
-    var descripcion: String by remember { mutableStateOf(tarea.descripcion?:"") }
-    var tiempo: String by remember { mutableStateOf(tarea.tiempo.toString()?:"") }
+    onGuardar: (String, Int, Int?) -> Unit,
+    onCancelar: () -> Unit
+) {
+    var descripcion by remember { mutableStateOf(tarea.descripcion) }
+    var tiempo by remember { mutableStateOf(tarea.tiempo.toString()) }
 
-    Scaffold { innerpadding ->
-        Column (
-            modifier = Modifier.fillMaxSize()
-                .padding(innerpadding)
+    Scaffold { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
                 .padding(16.dp)
-        ){
-            ElevatedCard (
-                modifier = Modifier.fillMaxWidth()
-            ){
+        ) {
+            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
-                    label = { Text(text = "descripcion") },
+                    label = { Text("Descripción") },
                     value = descripcion,
-                    onValueChange = {descripcion=it},
+                    onValueChange = { descripcion = it },
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
-                    label = { Text(text = "tiempo") },
+                    label = { Text("Tiempo") },
                     value = tiempo,
-                    onValueChange = {tiempo= it},
+                    onValueChange = { tiempo = it },
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.padding(4.dp))
+                Spacer(modifier = Modifier.padding(8.dp))
 
-                Row (modifier = Modifier.fillMaxWidth()){
-                    OutlinedButton(
-                        onClick = {
-                            val tiempovalue=tiempo.toDoubleOrNull()?:0.0
-                            OnAgregar(descripcion,tiempovalue)
-                        }
-                    ) {
-                        Icon(Icons.Default.Done, contentDescription = "save button")
-                        Text(text ="Guardar" )
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    OutlinedButton(onClick = {
+                        onGuardar(descripcion, tiempo.toIntOrNull() ?: 0, tarea.tareaid)
+                    }) {
+                        Icon(Icons.Default.Done, contentDescription = null)
+                        Text("Guardar")
                     }
-                    val scope=rememberCoroutineScope()
-                    OutlinedButton(
-                        onClick = {}
-                    ) {
-                        Icon(Icons.Default.Close, contentDescription = "Cancelar button")
-                        Text(text ="Cancelar" )
+                    OutlinedButton(onClick = onCancelar) {
+                        Icon(Icons.Default.Close, contentDescription = null)
+                        Text("Cancelar")
                     }
-
                 }
             }
         }
