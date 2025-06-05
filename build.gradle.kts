@@ -9,5 +9,3 @@ plugins {
     id("com.google.dagger.hilt.android") version "2.51" apply false
     kotlin("plugin.serialization") version "1.9.10" apply false
 }
-
-

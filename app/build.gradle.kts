@@ -2,11 +2,11 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     kotlin("plugin.serialization")
-
-
 
 }
 
@@ -46,7 +46,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -58,27 +57,27 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.android)
 
     // Compose Navigation
-    implementation(libs.androidx.navigation.compose)
+    implementation("androidx.navigation:navigation-compose:2.8.0-rc01")
 
     // Serialization
     implementation(libs.kotlin.serialization.json)
 
     // Room
-    implementation(libs.androidx.room.runtime)
+    implementation("androidx.room:room-runtime:2.6.1")
     implementation(libs.androidx.room.runtime.android)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
+    ksp("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
 
     // Hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
-    implementation(libs.androidx.hilt.navigation.compose)
+    implementation("com.google.dagger:hilt-android:2.51")
+    ksp("com.google.dagger:hilt-android-compiler:2.51")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // Retrofit y Moshi
-    implementation(libs.retrofit)
-    implementation(libs.moshi.kotlin)
-    implementation(libs.converter.moshi)
-    implementation(libs.logging.interceptor)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.14.0")
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     // Tests
     testImplementation(libs.junit)
@@ -88,4 +87,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
 }
