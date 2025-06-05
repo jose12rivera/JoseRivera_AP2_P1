@@ -1,29 +1,14 @@
 package edu.ucne.joserivera_ap2_p1.presentation.tareas
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import edu.ucne.joserivera_ap2_p1.data.local.entities.TareaEntity
 
 @Composable
@@ -34,40 +19,79 @@ fun TareaScreen(
 ) {
     var descripcion by remember { mutableStateOf(tarea.descripcion) }
     var tiempo by remember { mutableStateOf(tarea.tiempo.toString()) }
+    var showError by remember { mutableStateOf(false) }
 
-    Scaffold { padding ->
-        Column(
+    Dialog(onDismissRequest = onCancelar) {
+        Card(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = MaterialTheme.shapes.medium
         ) {
-            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+
+                Text(
+                    text = "Registrar Tarea",
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                )
                 OutlinedTextField(
-                    label = { Text("Descripción") },
                     value = descripcion,
                     onValueChange = { descripcion = it },
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text("Descripción") },
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = showError && descripcion.isBlank()
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 OutlinedTextField(
-                    label = { Text("Tiempo") },
                     value = tiempo,
                     onValueChange = { tiempo = it },
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text("Tiempo (minutos)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = showError && (tiempo.isBlank() || tiempo.toIntOrNull() == null)
                 )
 
-                Spacer(modifier = Modifier.padding(8.dp))
+                if (showError && (descripcion.isBlank() || tiempo.isBlank() || tiempo.toIntOrNull() == null)) {
+                    Text(
+                        text = "Por favor complete todos los campos correctamente",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
 
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                    OutlinedButton(onClick = {
-                        onGuardar(descripcion, tiempo.toIntOrNull() ?: 0, tarea.tareaid)
-                    }) {
-                        Icon(Icons.Default.Done, contentDescription = null)
-                        Text("Guardar")
-                    }
-                    OutlinedButton(onClick = onCancelar) {
-                        Icon(Icons.Default.Close, contentDescription = null)
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onCancelar) {
+                        Icon(Icons.Default.Close, contentDescription = "Cancelar")
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text("Cancelar")
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Button(
+                        onClick = {
+                            if (descripcion.isNotBlank() && tiempo.toIntOrNull() != null) {
+                                onGuardar(descripcion, tiempo.toInt(), tarea.tareaid)
+                            } else {
+                                showError = true
+                            }
+                        }
+                    ) {
+                        Icon(Icons.Default.Done, contentDescription = "Guardar")
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Guardar")
                     }
                 }
             }
