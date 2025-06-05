@@ -1,28 +1,65 @@
 package edu.ucne.joserivera_ap2_p1
-import androidx.compose.foundation.lazy.items
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.room.Room
+import edu.ucne.joserivera_ap2_p1.data.local.database.TareaDb
+import edu.ucne.joserivera_ap2_p1.data.local.entities.TareaEntity
+import edu.ucne.joserivera_ap2_p1.data.respository.TareaRespository
+import edu.ucne.joserivera_ap2_p1.presentation.tareas.TareaListScreen
+import edu.ucne.joserivera_ap2_p1.presentation.tareas.TareaScreen
+import edu.ucne.joserivera_ap2_p1.presentation.tareas.TareaviewModel
 import edu.ucne.joserivera_ap2_p1.ui.theme.JoseRivera_AP2_P1Theme
 
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
+class MainActivity : ComponentActivity() {   override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+       val TareaDb= Room.databaseBuilder(
+           applicationContext,
+           TareaDb::class.java,
+           "Tarea.Db"
+       ).fallbackToDestructiveMigration().build()
+
+    val respository= TareaRespository(TareaDb.Tareadao())
+
         setContent {
             JoseRivera_AP2_P1Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+              val tareaviewModel: TareaviewModel= remember {
+                  TareaviewModel(respository)
+              }
+
+                var mostrarFormulario by remember { mutableStateOf(false) }
+                var selecionartarea by remember { mutableStateOf(TareaEntity(0,"",0.0)) }
+
+                if (mostrarFormulario){
+                    TareaScreen(
+                       tarea=selecionartarea,
+                        OnAgregar = {descripcion,tiempo->
+                            tareaviewModel.Agregartarea(descripcion,tiempo)
+                        }, Oncancelar={
+                            mostrarFormulario =false
+                        }
+                    )
+                }else{
+                    TareaListScreen(
+                       tarealist=tareaviewModel.tarealist.collectAsState().value,
+                        Oncreate ={
+                            selecionartarea= TareaEntity(0,"",0.0)
+                            mostrarFormulario =true
+                        },OnDelete={tarea->
+                            tareaviewModel.tareadelete(tarea)
+                        },OnEditar={tarea->
+                            selecionartarea= tarea
+                            mostrarFormulario =true
+                        }
+
+
                     )
                 }
             }
@@ -30,18 +67,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    JoseRivera_AP2_P1Theme {
-        Greeting("Android")
-    }
-}
