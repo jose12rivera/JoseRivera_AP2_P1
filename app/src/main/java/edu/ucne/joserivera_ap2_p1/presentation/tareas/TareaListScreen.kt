@@ -23,7 +23,7 @@ fun TareaListScreen(
     tarealist: List<TareaEntity>,
     onCreate: () -> Unit,
     onDelete: (Int) -> Unit,
-    onEditar: (TareaEntity) -> Unit
+    onEditar: (Int) -> Unit
 ) {
     Scaffold(
         floatingActionButton = {
@@ -61,7 +61,7 @@ fun TareaListScreen(
                     TareaRow(
                         tarea = tarea,
                         onDelete = { onDelete(it.tareaid) },
-                        onEditar = onEditar
+                        onEditar = { onEditar(tarea.tareaid) }
                     )
                 }
             }

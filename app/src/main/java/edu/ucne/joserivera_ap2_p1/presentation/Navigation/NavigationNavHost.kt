@@ -23,37 +23,45 @@ fun AppNavigation(
         navController = navController,
         startDestination = "home"
     ) {
-        composable("home") {
-            HomeScreen(navController = navController)
-        }
+        composable("home") { HomeScreen(navController = navController) }
 
         composable("tarea_list") {
             TareaListScreen(
                 tarealist = tarealist,
                 onCreate = { navController.navigate("tarea_nueva") },
                 onDelete = { tareaId -> navController.navigate("eliminar_tarea/$tareaId") },
-                onEditar = { navController.navigate("editar_tarea/${it.tareaid}") }
+                onEditar = { tareaId -> navController.navigate("editar_tarea/$tareaId") }
             )
         }
 
         composable("tarea_nueva") {
-            TareaBodyScreen(
-                uiState = uiState,
-                onEvent = viewModel::onEvent,
-                goBack = { navController.popBackStack() }
+            // Resetear el estado para nueva tarea
+            LaunchedEffect(Unit) {
+                viewModel.loadTarea(0)
+            }
+            TareaEditarScreen(
+                tareaId = 0,
+                viewModel = viewModel,
+                onGuardar = { navController.popBackStack() },
+                onCancelar = { navController.popBackStack() }
             )
         }
 
         composable("editar_tarea/{tareaId}") { backStackEntry ->
             val tareaId = backStackEntry.arguments?.getString("tareaId")?.toIntOrNull() ?: 0
+
+            // Cargar la tarea cuando entra a editar
             LaunchedEffect(tareaId) {
-                viewModel.loadTarea(tareaId)
+                if (tareaId > 0) {
+                    viewModel.loadTarea(tareaId)
+                }
             }
 
-            TareaBodyScreen(
-                uiState = uiState,
-                onEvent = viewModel::onEvent,
-                goBack = { navController.popBackStack() }
+            TareaEditarScreen(
+                tareaId = tareaId,
+                viewModel = viewModel,
+                onGuardar = { navController.popBackStack() },
+                onCancelar = { navController.popBackStack() }
             )
         }
 
@@ -71,7 +79,6 @@ fun AppNavigation(
                     onCancel = { navController.popBackStack() }
                 )
             } else {
-                // Mostrar mensaje de error o redirigir
                 navController.popBackStack()
             }
         }

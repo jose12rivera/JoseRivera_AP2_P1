@@ -64,6 +64,7 @@ class TareaviewModel @Inject constructor(
         }
     }
 
+
     fun onEvent(event: TareaEvent) {
         when (event) {
             is TareaEvent.DescripcionChange -> {

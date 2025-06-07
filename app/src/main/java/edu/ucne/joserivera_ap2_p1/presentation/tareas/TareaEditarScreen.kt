@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TareaEditarScreen(
@@ -21,18 +20,17 @@ fun TareaEditarScreen(
     onGuardar: () -> Unit,
     onCancelar: () -> Unit
 ) {
-    // Cargar la tarea cuando el screen se muestra o cambia el tareaId
+    val uiState by viewModel.uiState.collectAsState()
+
     LaunchedEffect(tareaId) {
         if (tareaId > 0) {
             viewModel.loadTarea(tareaId)
         } else {
+            // Limpiar formulario si no hay tareaId válido
             viewModel.onEvent(TareaEvent.DescripcionChange(""))
             viewModel.onEvent(TareaEvent.TiempoChange(""))
         }
     }
-
-    // Observar los cambios en el estado
-    val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -46,32 +44,20 @@ fun TareaEditarScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onCancelar) {
-                        Icon(
-                            Icons.Filled.ArrowBack,
-                            contentDescription = "Cancelar",
-                            tint = Color.White
-                        )
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Cancelar", tint = Color.White)
                     }
                 },
                 actions = {
-                    IconButton(
-                        onClick = {
-                            viewModel.onEvent(TareaEvent.Save)
-                            if (uiState.errorMessage == null) {
-                                onGuardar()
-                            }
+                    IconButton(onClick = {
+                        viewModel.onEvent(TareaEvent.Save)
+                        if (uiState.errorMessage == null) {
+                            onGuardar()
                         }
-                    ) {
-                        Icon(
-                            Icons.Filled.Check,
-                            contentDescription = "Guardar",
-                            tint = Color.White
-                        )
+                    }) {
+                        Icon(Icons.Filled.Check, contentDescription = "Guardar", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFF1976D2)
-                )
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color(0xFF1976D2))
             )
         }
     ) { padding ->
@@ -83,9 +69,7 @@ fun TareaEditarScreen(
         ) {
             OutlinedTextField(
                 value = uiState.descripcion,
-                onValueChange = {
-                    viewModel.onEvent(TareaEvent.DescripcionChange(it))
-                },
+                onValueChange = { viewModel.onEvent(TareaEvent.DescripcionChange(it)) },
                 label = { Text("Descripción") },
                 modifier = Modifier.fillMaxWidth(),
                 isError = uiState.errorMessage != null && uiState.descripcion.isBlank()
@@ -95,9 +79,7 @@ fun TareaEditarScreen(
 
             OutlinedTextField(
                 value = uiState.tiempo,
-                onValueChange = {
-                    viewModel.onEvent(TareaEvent.TiempoChange(it))
-                },
+                onValueChange = { viewModel.onEvent(TareaEvent.TiempoChange(it)) },
                 label = { Text("Tiempo (minutos)") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -105,7 +87,6 @@ fun TareaEditarScreen(
                         (uiState.tiempo.isBlank() || uiState.tiempo.toIntOrNull() == null)
             )
 
-            // Mostrar mensaje de error si existe
             uiState.errorMessage?.let { error ->
                 Text(
                     text = error,

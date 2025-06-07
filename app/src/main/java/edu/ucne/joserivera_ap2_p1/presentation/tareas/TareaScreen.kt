@@ -10,28 +10,23 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun TareaBodyScreen(
     uiState: TareaUiState,
     onEvent: (TareaEvent) -> Unit,
-    goBack: () -> Unit
+    onGuardar: () -> Unit,
+    onCancelar: () -> Unit
 ) {
     var showError by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        if (uiState.tareaId != null && uiState.tareaId > 0)
-                            "Editar Tarea"
-                        else
-                            "Nueva Tarea"
-                    )
-                },
+                title = { Text("Nueva Tarea") },
                 navigationIcon = {
-                    IconButton(onClick = goBack) {
-                        Icon(Icons.Default.Close, contentDescription = "Volver")
+                    IconButton(onClick = onCancelar) {
+                        Icon(Icons.Default.Close, contentDescription = "Cancelar")
                     }
                 },
                 actions = {
@@ -39,7 +34,7 @@ fun TareaBodyScreen(
                         val tiempoInt = uiState.tiempo.toIntOrNull()
                         if (uiState.descripcion.isNotBlank() && tiempoInt != null && tiempoInt > 0) {
                             onEvent(TareaEvent.Save)
-                            goBack()
+                            onGuardar()
                         } else {
                             showError = true
                         }
@@ -74,7 +69,7 @@ fun TareaBodyScreen(
                 isError = showError && (uiState.tiempo.isBlank() || uiState.tiempo.toIntOrNull() == null)
             )
 
-            if (showError && (uiState.descripcion.isBlank() || uiState.tiempo.toIntOrNull() == null)) {
+            if (showError) {
                 Text(
                     text = "Por favor complete todos los campos correctamente.",
                     color = MaterialTheme.colorScheme.error,
