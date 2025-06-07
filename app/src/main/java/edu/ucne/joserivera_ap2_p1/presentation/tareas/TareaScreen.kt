@@ -27,11 +27,19 @@ fun TareaScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    // Cargar datos si se edita
     LaunchedEffect(tareaId) {
         if (tareaId != 0) {
             viewModel.onEvent(TareaEvent.LoadTarea(tareaId))
         } else {
             viewModel.onEvent(TareaEvent.New)
+        }
+    }
+
+    // Ir atrás si se guardó correctamente
+    LaunchedEffect(uiState.isSaveSuccessful) {
+        if (uiState.isSaveSuccessful) {
+            goBack()
         }
     }
 
@@ -121,15 +129,12 @@ fun TareaScreen(
                     Button(
                         onClick = {
                             viewModel.onEvent(TareaEvent.Save)
-                            if (uiState.errorMessage == null) goBack()
                         },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43A047))
                     ) {
                         Text(if (uiState.tareaId == 0) "Guardar" else "Actualizar")
                     }
-
-
                 }
             }
         }

@@ -52,22 +52,17 @@ class TareasViewModel @Inject constructor(
                             tareaId = tarea.tareaId,
                             descripcion = tarea.descripcion,
                             tiempo = tarea.tiempo,
-                            errorMessage = null
+                            errorMessage = null,
+                            isSaveSuccessful = false
                         )
                     }
                 }
             } else {
-                _uiState.update {
-                    it.copy(
-                        tareaId = 0,
-                        descripcion = "",
-                        tiempo = 0,
-                        errorMessage = null
-                    )
-                }
+                newTarea()
             }
         }
     }
+
     private fun deleteTareaById(tareaId: Int) {
         viewModelScope.launch {
             tareasRepository.find(tareaId)?.let {
@@ -76,14 +71,18 @@ class TareasViewModel @Inject constructor(
         }
     }
 
-
     private fun saveTarea() {
         viewModelScope.launch {
             val current = _uiState.value
             if (validateFields(current)) {
                 val tarea = current.toEntity()
                 tareasRepository.save(tarea)
-                _uiState.update { it.copy(errorMessage = null) }
+                _uiState.update {
+                    it.copy(
+                        errorMessage = null,
+                        isSaveSuccessful = true // 🔥 Para que navegue hacia atrás
+                    )
+                }
             }
         }
     }
@@ -104,17 +103,18 @@ class TareasViewModel @Inject constructor(
                 tareaId = 0,
                 descripcion = "",
                 tiempo = 0,
-                errorMessage = null
+                errorMessage = null,
+                isSaveSuccessful = false
             )
         }
     }
 
     private fun updateDescripcion(descripcion: String) {
-        _uiState.update { it.copy(descripcion = descripcion) }
+        _uiState.update { it.copy(descripcion = descripcion, errorMessage = null) }
     }
 
     private fun updateTiempo(tiempo: Int) {
-        _uiState.update { it.copy(tiempo = tiempo) }
+        _uiState.update { it.copy(tiempo = tiempo, errorMessage = null) }
     }
 
     private fun validateFields(state: TareaUiState): Boolean {

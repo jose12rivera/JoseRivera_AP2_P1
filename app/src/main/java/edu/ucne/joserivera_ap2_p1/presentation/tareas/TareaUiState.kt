@@ -7,5 +7,6 @@ data class TareaUiState(
     val descripcion: String = "",
     val tiempo: Int = 0,
     val errorMessage: String? = null,
-    val tareas: List<TareaEntity> = emptyList()
+    val tareas: List<TareaEntity> = emptyList(),
+    val isSaveSuccessful: Boolean = false
 )
