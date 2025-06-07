@@ -1,4 +1,5 @@
 package edu.ucne.joserivera_ap2_p1.presentation.tareas
+
 sealed interface TareaEvent {
     data class DescripcionChange(val descripcion: String) : TareaEvent
     data class TiempoChange(val tiempo: Int) : TareaEvent
