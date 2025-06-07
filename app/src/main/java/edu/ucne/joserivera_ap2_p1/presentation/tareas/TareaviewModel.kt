@@ -1,67 +1,142 @@
 package edu.ucne.joserivera_ap2_p1.presentation.tareas
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.ucne.joserivera_ap2_p1.data.local.entities.TareaEntity
 import edu.ucne.joserivera_ap2_p1.data.repository.TareaRepository
-
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class TareaviewModel @Inject constructor(
-    private val tareaRespository: TareaRepository
+class TareasViewModel @Inject constructor(
+    private val tareasRepository: TareaRepository
 ) : ViewModel() {
 
-    private val _tarealist = MutableStateFlow<List<TareaEntity>>(emptyList())
-    val tarealist: StateFlow<List<TareaEntity>> = _tarealist.asStateFlow()
+    private val _uiState = MutableStateFlow(TareaUiState())
+    val uiState = _uiState.asStateFlow()
 
     init {
         loadTareas()
     }
 
-    fun loadTareas() {
+    fun onEvent(event: TareaEvent) {
+        when (event) {
+            is TareaEvent.DescripcionChange -> updateDescripcion(event.descripcion)
+            is TareaEvent.TiempoChange -> updateTiempo(event.tiempo)
+            TareaEvent.Save -> saveTarea()
+            TareaEvent.Delete -> deleteTarea()
+            TareaEvent.New -> newTarea()
+            is TareaEvent.LoadTarea -> loadTarea(event.tareaId)
+            is TareaEvent.DeleteById -> deleteTareaById(event.tareaId)
+        }
+    }
+
+    private fun loadTareas() {
         viewModelScope.launch {
-            tareaRespository.getAll().collect { lista ->
-                Log.d("TareaviewModel", "Lista recibida: ${lista.size}")
-                _tarealist.value = lista
+            tareasRepository.getAll().collect { tareas ->
+                _uiState.update { it.copy(tareas = tareas) }
             }
         }
     }
 
-    fun updateTarea(tarea: TareaEntity) {
-        saveTarea(tarea)
-    }
-
-    fun agregarTarea(descripcion: String, tiempo: Int, id: Int? = null) {
-        val tarea = TareaEntity(
-            tareaid = id ?: 0,
-            descripcion = descripcion,
-            tiempo = tiempo
-        )
-        saveTarea(tarea)
-    }
-
-    private fun saveTarea(tarea: TareaEntity) {
+    private fun loadTarea(tareaId: Int) {
         viewModelScope.launch {
-            tareaRespository.save(tarea)
-            loadTareas()
+            if (tareaId > 0) {
+                tareasRepository.find(tareaId)?.let { tarea ->
+                    _uiState.update {
+                        it.copy(
+                            tareaId = tarea.tareaId,
+                            descripcion = tarea.descripcion,
+                            tiempo = tarea.tiempo,
+                            errorMessage = null,
+                            isSaveSuccessful = false
+                        )
+                    }
+                }
+            } else {
+                newTarea()
+            }
         }
     }
 
-    fun deleteTarea(tarea: TareaEntity) {
+    private fun deleteTareaById(tareaId: Int) {
         viewModelScope.launch {
-            tareaRespository.delete(tarea)
-            loadTareas()
+            tareasRepository.find(tareaId)?.let {
+                tareasRepository.delete(it)
+            }
         }
     }
 
-    fun getTareaById(id: Int): TareaEntity? {
-        return _tarealist.value.find { it.tareaid == id }
+    private fun saveTarea() {
+        viewModelScope.launch {
+            val current = _uiState.value
+            if (validateFields(current)) {
+                val tarea = current.toEntity()
+                tareasRepository.save(tarea)
+                _uiState.update {
+                    it.copy(
+                        errorMessage = null,
+                        isSaveSuccessful = true
+                    )
+                }
+            }
+        }
     }
+
+    private fun deleteTarea() {
+        viewModelScope.launch {
+            _uiState.value.tareaId?.let { id ->
+                if (id > 0) {
+                    tareasRepository.delete(_uiState.value.toEntity())
+                }
+            }
+        }
+    }
+
+    private fun newTarea() {
+        _uiState.update {
+            it.copy(
+                tareaId = 0,
+                descripcion = "",
+                tiempo = 0,
+                errorMessage = null,
+                isSaveSuccessful = false
+            )
+        }
+    }
+
+    private fun updateDescripcion(descripcion: String) {
+        _uiState.update { it.copy(descripcion = descripcion, errorMessage = null) }
+    }
+
+    private fun updateTiempo(tiempo: Int) {
+        _uiState.update { it.copy(tiempo = tiempo, errorMessage = null) }
+    }
+
+    private fun validateFields(state: TareaUiState): Boolean {
+        return when {
+            state.descripcion.isBlank() -> {
+                _uiState.update { it.copy(errorMessage = "La descripción no puede estar vacía") }
+                false
+            }
+            state.tiempo <= 0 -> {
+                _uiState.update { it.copy(errorMessage = "El tiempo debe ser mayor a 0") }
+                false
+            }
+            else -> true
+        }
+    }
+}
+
+
+private fun TareaUiState.toEntity(): TareaEntity {
+    return TareaEntity(
+        tareaId = this.tareaId ?: 0,
+        descripcion = this.descripcion,
+        tiempo = this.tiempo
+    )
 }

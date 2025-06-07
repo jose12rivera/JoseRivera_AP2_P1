@@ -1,80 +1,124 @@
 package edu.ucne.joserivera_ap2_p1.presentation.tareas
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import edu.ucne.joserivera_ap2_p1.data.local.entities.TareaEntity
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TareaScreen(
-    tarea: TareaEntity,
-    onGuardar: (String, Int, Int?) -> Unit,
-    onCancelar: () -> Unit
+    tareaId: Int,
+    goBack: () -> Unit,
+    viewModel: TareasViewModel = hiltViewModel()
 ) {
-    var descripcion by remember { mutableStateOf(tarea.descripcion) }
-    var tiempo by remember { mutableStateOf(tarea.tiempo.toString()) }
-    var showError by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsState()
 
-    Dialog(onDismissRequest = onCancelar) {
-        Card(
+    LaunchedEffect(tareaId) {
+        if (tareaId != 0) {
+            viewModel.onEvent(TareaEvent.LoadTarea(tareaId))
+        } else {
+            viewModel.onEvent(TareaEvent.New)
+        }
+    }
+
+    LaunchedEffect(uiState.isSaveSuccessful) {
+        if (uiState.isSaveSuccessful) {
+            goBack()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = if (uiState.tareaId == 0) "Registrar Tarea" else "Editar Tarea",
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontSize = 23.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        ),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = goBack) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = Color.White)
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFCCC2DC))
+            )
+        }
+    ) { paddingValues ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(Color(0xFFCCC2DC), Color(0xFFCCC2DC))
+                    )
+                )
+                .padding(paddingValues)
                 .padding(16.dp),
-            shape = MaterialTheme.shapes.medium
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Red, MaterialTheme.shapes.medium)
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-
-                Text(
-                    text = "Registrar Tarea",
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp)
-                )
                 OutlinedTextField(
-                    value = descripcion,
-                    onValueChange = { descripcion = it },
+                    value = uiState.descripcion,
+                    onValueChange = { viewModel.onEvent(TareaEvent.DescripcionChange(it)) },
                     label = { Text("Descripción") },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = showError && descripcion.isBlank()
+                    modifier = Modifier.fillMaxWidth()
                 )
-
-                Spacer(modifier = Modifier.height(16.dp))
 
                 OutlinedTextField(
-                    value = tiempo,
-                    onValueChange = { tiempo = it },
-                    label = { Text("Tiempo (minutos)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    isError = showError && (tiempo.isBlank() || tiempo.toIntOrNull() == null)
+                    value = uiState.tiempo.takeIf { it != 0 }?.toString() ?: "",
+                    onValueChange = {
+                        viewModel.onEvent(TareaEvent.TiempoChange(it.toIntOrNull() ?: 0))
+                    },
+                    label = { Text("Tiempo (horas)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                if (showError && (descripcion.isBlank() || tiempo.isBlank() || tiempo.toIntOrNull() == null)) {
+                uiState.errorMessage?.let {
                     Text(
-                        text = "Por favor complete todos los campos correctamente",
+                        text = it,
                         color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(top = 8.dp)
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    TextButton(onClick = onCancelar) {
-                        Icon(Icons.Default.Close, contentDescription = "Cancelar")
-                        Spacer(modifier = Modifier.width(4.dp))
+                    Button(
+                        onClick = goBack,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+                    ) {
                         Text("Cancelar")
                     }
 
@@ -82,16 +126,12 @@ fun TareaScreen(
 
                     Button(
                         onClick = {
-                            if (descripcion.isNotBlank() && tiempo.toIntOrNull() != null) {
-                                onGuardar(descripcion, tiempo.toInt(), tarea.tareaid)
-                            } else {
-                                showError = true
-                            }
-                        }
+                            viewModel.onEvent(TareaEvent.Save)
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43A047))
                     ) {
-                        Icon(Icons.Default.Done, contentDescription = "Guardar")
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Guardar")
+                        Text(if (uiState.tareaId == 0) "Guardar" else "Actualizar")
                     }
                 }
             }

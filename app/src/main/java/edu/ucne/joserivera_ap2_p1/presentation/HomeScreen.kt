@@ -1,5 +1,6 @@
 package edu.ucne.joserivera_ap2_p1.presentation
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -27,7 +28,7 @@ fun HomeScreen(
                 .fillMaxSize()
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(Color(0xFF6650a4), Color(0xFF9370DB))
+                        colors = listOf(Color(0xFFCCC2DC), Color(0xFFCCC2DC))
                     )
                 )
                 .padding(paddingValues)
@@ -38,11 +39,12 @@ fun HomeScreen(
             MenuCard(
                 titulo = "Tareas",
                 icono = Icons.Default.List,
-                onClick = { navController.navigate("tarea_list") }
+                onClick = { navController.navigate("tareas") }
             )
         }
     }
 }
+
 
 @Composable
 fun MenuCard(

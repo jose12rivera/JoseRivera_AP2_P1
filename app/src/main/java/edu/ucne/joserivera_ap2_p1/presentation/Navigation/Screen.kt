@@ -12,10 +12,4 @@ sealed class Screen {
 
     @Serializable
     data class Tarea(val tareaId: Int) : Screen()
-
-    @Serializable
-    data class TareaDelete(val tareaId: Int) : Screen()
-
-    @Serializable
-    data class TareaEditar(val tareaId: Int) : Screen()
 }

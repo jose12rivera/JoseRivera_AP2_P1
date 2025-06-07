@@ -1,132 +1,112 @@
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+package edu.ucne.joserivera_ap2_p1.presentation.tareas
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import edu.ucne.joserivera_ap2_p1.data.local.entities.TareaEntity
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TareaListScreen(
-    tarealist: List<TareaEntity>,
-    onCreate: () -> Unit,
-    onDelete: (Int) -> Unit,
-    onEditar: (TareaEntity) -> Unit
+    viewModel: TareasViewModel = hiltViewModel(),
+    goToTarea: (Int) -> Unit,
+    createTarea: () -> Unit
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onCreate,
-                containerColor = Color(0xFF6650a4),
-                contentColor = Color.White
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Agregar")
-            }
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        "Lista de Tareas",
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    )
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFCCC2DC)
+                ),
+                actions = {
+                    IconButton(onClick = createTarea) {
+                        Icon(Icons.Default.Add, contentDescription = "Nueva tarea", tint = Color.Green)
+                    }
+                }
+            )
         }
-    ) { padding ->
+
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(Color(0xFFCCC2DC), Color(0xFFCCC2DC))
+                    )
+                )
+                .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            Text(
-                text = "Lista de tareas",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(uiState.tareas) { tarea ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = Color.Red)
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text(
+                                        "Descripción: ${tarea.descripcion}",
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text("Tiempo: ${tarea.tiempo} hrs",  fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold)
+                                }
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(tarealist) { tarea ->
-                    TareaRow(
-                        tarea,
-                        onDelete = { onDelete(it.tareaid) },
-                        onEditar = onEditar
-                    )
+
+                                Row {
+                                    IconButton(onClick = { goToTarea(tarea.tareaId) }) {
+                                        Icon(Icons.Default.Edit, contentDescription = "Editar")
+                                    }
+
+                                    IconButton(onClick = {
+                                        viewModel.onEvent(TareaEvent.DeleteById(tarea.tareaId))
+                                    }) {
+                                        Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+                                    }
+                                }
+                            }
+
+                        }
+                    }
                 }
             }
         }
     }
-}
 
-
-
-@Composable
-fun TareaRow(
-    tarea: TareaEntity,
-    onDelete: (TareaEntity) -> Unit,
-    onEditar: (TareaEntity) -> Unit
-) {
-    Card(
-        elevation = CardDefaults.cardElevation(4.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "Descripción: ${tarea.descripcion}",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "Tiempo: ${tarea.tiempo} minutos",
-                    fontSize = 14.sp
-                )
-            }
-
-            Row {
-                IconButton(onClick = { onEditar(tarea) }) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Editar",
-                        tint = Color(0xFF6650a4)
-                    )
-                }
-                IconButton(onClick = { onDelete(tarea) }) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Eliminar",
-                        tint = Color.Red
-                    )
-                }
-            }
-        }
-    }
-}
