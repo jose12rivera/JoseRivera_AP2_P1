@@ -27,7 +27,6 @@ fun TareaScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    // Cargar datos si se edita
     LaunchedEffect(tareaId) {
         if (tareaId != 0) {
             viewModel.onEvent(TareaEvent.LoadTarea(tareaId))
@@ -36,7 +35,6 @@ fun TareaScreen(
         }
     }
 
-    // Ir atrás si se guardó correctamente
     LaunchedEffect(uiState.isSaveSuccessful) {
         if (uiState.isSaveSuccessful) {
             goBack()
@@ -63,7 +61,7 @@ fun TareaScreen(
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF6650a4))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFCCC2DC))
             )
         }
     ) { paddingValues ->
@@ -72,7 +70,7 @@ fun TareaScreen(
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(Color(0xFFE9E7EF), Color(0xFF6650a4))
+                        colors = listOf(Color(0xFFCCC2DC), Color(0xFFCCC2DC))
                     )
                 )
                 .padding(paddingValues)
@@ -83,7 +81,7 @@ fun TareaScreen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.White, MaterialTheme.shapes.medium)
+                    .background(Color.Red, MaterialTheme.shapes.medium)
                     .padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
