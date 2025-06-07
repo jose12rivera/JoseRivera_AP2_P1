@@ -7,7 +7,7 @@ import edu.ucne.joserivera_ap2_p1.data.local.entities.TareaEntity
 
 @Database(
     entities = [TareaEntity::class],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
