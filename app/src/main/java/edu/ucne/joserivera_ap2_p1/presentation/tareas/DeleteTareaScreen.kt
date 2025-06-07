@@ -1,24 +1,12 @@
+// DeleteTareaScreen.kt
 package edu.ucne.joserivera_ap2_p1.presentation.tareas
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,31 +14,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import edu.ucne.joserivera_ap2_p1.data.local.entities.TareaEntity
 
 @Composable
 fun DeleteTareaScreen(
-    viewModel: TareaviewModel,
-    tareaId: Int,
-    goBack: () -> Unit
+    tarea: TareaEntity,
+    onDelete: (TareaEntity) -> Unit,
+    onCancel: () -> Unit
 ) {
-    val tarea = viewModel.getTareaById(tareaId)
-
-    if (tarea == null) {
-        Text(
-            text = "Tarea no encontrada",
-            modifier = Modifier.fillMaxSize(),
-            textAlign = TextAlign.Center,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Red
-        )
-        return
-    }
-
     Scaffold(
         topBar = {
             Text(
-                text = "¿Esta seguro de eliminar esta tarea?",
+                text = "¿Está seguro de eliminar esta tarea?",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
@@ -74,7 +49,7 @@ fun DeleteTareaScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Descripcion: ${tarea.descripcion}",
+                        text = "Descripción: ${tarea.descripcion}",
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
                     )
@@ -92,14 +67,11 @@ fun DeleteTareaScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(
-                    onClick = {
-                        viewModel.deleteTarea(tarea)
-                        goBack()
-                    },
+                    onClick = { onDelete(tarea) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    androidx.compose.material3.Icon(
+                    Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Eliminar",
                         tint = Color.Red
@@ -109,11 +81,11 @@ fun DeleteTareaScreen(
                 }
 
                 OutlinedButton(
-                    onClick = goBack,
+                    onClick = onCancel,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    androidx.compose.material3.Icon(
+                    Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Cancelar",
                         tint = Color.Gray
