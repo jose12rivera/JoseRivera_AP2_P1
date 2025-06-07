@@ -1,18 +1,16 @@
-package edu.ucne.joserivera_ap2_p1.data.repository
+package edu.ucne.joserivera_ap2_p1.data.respository
 
-import edu.ucne.joserivera_ap2_p1.data.local.dao.TareaDao
+import edu.ucne.joserivera_ap2_p1.data.local.dao.Tareadao
 import edu.ucne.joserivera_ap2_p1.data.local.entities.TareaEntity
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
 
-class TareaRepository @Inject constructor(
-    private val tareaDao: TareaDao
-) {
-    suspend fun save(tarea: TareaEntity) = tareaDao.save(tarea)
+class TareaRespository (
+    private val tareadao: Tareadao
+){
+    suspend fun save(tarea:TareaEntity)=tareadao.save(tarea)
 
-    suspend fun find(id: Int): TareaEntity? = tareaDao.find(id)
+    suspend fun find(id: Int): TareaEntity?=tareadao.find(id)
+    suspend fun delete(tarea: TareaEntity) =tareadao.delete(tarea)
 
-    suspend fun delete(tarea: TareaEntity) = tareaDao.delete(tarea)
-
-    fun getAll(): Flow<List<TareaEntity>> = tareaDao.getAll()
+    fun getAll(): Flow<List<TareaEntity>> =tareadao.getAll()
 }

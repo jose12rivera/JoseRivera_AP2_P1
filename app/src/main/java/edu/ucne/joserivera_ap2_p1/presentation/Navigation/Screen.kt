@@ -3,19 +3,15 @@ package edu.ucne.joserivera_ap2_p1.presentation.Navigation
 import kotlinx.serialization.Serializable
 
 sealed class Screen {
+    @Serializable
+    data object tarealist: Screen()
 
     @Serializable
-    data object HomeScreen : Screen()
+    data class tarea (val tareaid: Int): Screen()
 
     @Serializable
-    object TareaList : Screen()
+    data class tareadelete (val tareaid: Int): Screen()
 
     @Serializable
-    data class Tarea(val tareaId: Int) : Screen()
-
-    @Serializable
-    data class TareaDelete(val tareaId: Int) : Screen()
-
-    @Serializable
-    data class TareaEditar(val tareaId: Int) : Screen()
+    data class tareaeditar (val tareaid: Int): Screen()
 }

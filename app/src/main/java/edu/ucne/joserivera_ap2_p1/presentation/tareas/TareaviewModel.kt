@@ -3,65 +3,57 @@ package edu.ucne.joserivera_ap2_p1.presentation.tareas
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.ucne.joserivera_ap2_p1.data.local.entities.TareaEntity
-import edu.ucne.joserivera_ap2_p1.data.repository.TareaRepository
-
+import edu.ucne.joserivera_ap2_p1.data.respository.TareaRespository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class TareaviewModel @Inject constructor(
-    private val tareaRespository: TareaRepository
-) : ViewModel() {
-
-    private val _tarealist = MutableStateFlow<List<TareaEntity>>(emptyList())
-    val tarealist: StateFlow<List<TareaEntity>> = _tarealist.asStateFlow()
+class TareaviewModel (
+    private val tareaRespository: TareaRespository
+): ViewModel(){
+    private val _tarealist= MutableStateFlow<List<TareaEntity>>(emptyList())
+    val tarealist:StateFlow<List<TareaEntity>> get() = _tarealist
 
     init {
-        loadTareas()
+        LoadTareas()
     }
 
-    fun loadTareas() {
+    fun LoadTareas(){
         viewModelScope.launch {
-            tareaRespository.getAll().collect { lista ->
-                Log.d("TareaviewModel", "Lista recibida: ${lista.size}")
-                _tarealist.value = lista
+            tareaRespository.getAll().collect { Lista->
+                Log.d("TareaviewModel","Lista recibida:${Lista.size}")
+                _tarealist.value=Lista
             }
         }
     }
-
-    fun updateTarea(tarea: TareaEntity) {
-        saveTarea(tarea)
+    fun Update(tarea: TareaEntity){
+        savetarea(tarea)
     }
 
-    fun agregarTarea(descripcion: String, tiempo: Int, id: Int? = null) {
-        val tarea = TareaEntity(
-            tareaid = id ?: 0,
-            descripcion = descripcion,
-            tiempo = tiempo
+    fun Agregartarea(descripcion: String,tiempo: Int, id: Int?){
+        val tarea= TareaEntity(
+            tareaid = id?:0,
+            descripcion=descripcion,
+            tiempo=tiempo
         )
-        saveTarea(tarea)
+        savetarea(tarea)
     }
-
-    private fun saveTarea(tarea: TareaEntity) {
+    fun savetarea(tarea: TareaEntity){
         viewModelScope.launch {
             tareaRespository.save(tarea)
-            loadTareas()
+            LoadTareas()
         }
     }
-
-    fun deleteTarea(tarea: TareaEntity) {
+    fun tareadelete(tarea: TareaEntity){
         viewModelScope.launch {
             tareaRespository.delete(tarea)
-            loadTareas()
+            LoadTareas()
         }
     }
 
-    fun getTareaById(id: Int): TareaEntity? {
-        return _tarealist.value.find { it.tareaid == id }
+    fun gettareaIdBY(id: Int): TareaEntity? {
+        return  _tarealist.value.find { it.tareaid==id }
     }
+
 }

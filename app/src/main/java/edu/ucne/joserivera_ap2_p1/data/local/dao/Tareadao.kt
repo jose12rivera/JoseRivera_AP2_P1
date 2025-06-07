@@ -2,24 +2,23 @@ package edu.ucne.joserivera_ap2_p1.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Upsert
 import edu.ucne.joserivera_ap2_p1.data.local.entities.TareaEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface TareaDao {
+interface Tareadao {
+    @Upsert()
+    suspend fun save(tarea:TareaEntity)
+    @Query("""Select*From tareas 
+        Where tareaid=:id 
+Limit 1
+""")
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun save(tarea: TareaEntity)
-
-    @Query("SELECT * FROM Tareas WHERE tareaid = :id LIMIT 1")
     suspend fun find(id: Int): TareaEntity?
-
     @Delete
     suspend fun delete(tareaEntity: TareaEntity)
-
-    @Query("SELECT * FROM Tareas")
+    @Query("Select *From tareas")
     fun getAll(): Flow<List<TareaEntity>>
 }
