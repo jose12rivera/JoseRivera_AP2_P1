@@ -1,24 +1,27 @@
 package edu.ucne.joserivera_ap2_p1.presentation.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import edu.ucne.joserivera_ap2_p1.presentation.HomeScreen
-import edu.ucne.joserivera_ap2_p1.presentation.tareas.*
+import edu.ucne.joserivera_ap2_p1.presentation.tareas.TareaListScreen
+import edu.ucne.joserivera_ap2_p1.presentation.tareas.TareaScreen
 
 @Composable
 fun AppNavigation(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = "tareas"
+        startDestination = "home"
     ) {
+
+        composable("home") {
+            HomeScreen(navController = navController)
+        }
+
+
         composable("tareas") {
             TareaListScreen(
                 goToTarea = { tareaId -> navController.navigate("tarea/$tareaId") },
