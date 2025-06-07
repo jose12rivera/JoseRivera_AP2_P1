@@ -32,7 +32,7 @@ fun TareaListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(
                         "Lista de Tareas",
@@ -42,34 +42,35 @@ fun TareaListScreen(
                         )
                     )
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF6650a4)),
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFFCCC2DC)
+                ),
                 actions = {
                     IconButton(onClick = createTarea) {
-                        Icon(Icons.Default.Add, contentDescription = "Nueva tarea", tint = Color.White)
+                        Icon(Icons.Default.Add, contentDescription = "Nueva tarea", tint = Color.Green)
                     }
                 }
             )
         }
+
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(Color(0xFFE9E7EF), Color(0xFF6650a4))
+                        colors = listOf(Color(0xFFCCC2DC), Color(0xFFCCC2DC))
                     )
                 )
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            if (uiState.tareas.isEmpty()) {
-                Text("No hay tareas registradas.", color = Color.Gray)
-            } else {
+
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(uiState.tareas) { tarea ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = Color.White)
+                            colors = CardDefaults.cardColors(containerColor = Color.Red)
                         ) {
                             Row(
                                 modifier = Modifier
@@ -79,9 +80,15 @@ fun TareaListScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column {
-                                    Text(tarea.descripcion, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                                    Text("Tiempo: ${tarea.tiempo} hrs", fontSize = 14.sp)
+                                    Text(
+                                        "Descripción: ${tarea.descripcion}",
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text("Tiempo: ${tarea.tiempo} hrs",  fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold)
                                 }
+
 
                                 Row {
                                     IconButton(onClick = { goToTarea(tarea.tareaId) }) {
@@ -102,4 +109,4 @@ fun TareaListScreen(
             }
         }
     }
-}
+
