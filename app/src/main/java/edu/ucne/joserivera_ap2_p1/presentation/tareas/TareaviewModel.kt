@@ -80,7 +80,7 @@ class TareasViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         errorMessage = null,
-                        isSaveSuccessful = true // 🔥 Para que navegue hacia atrás
+                        isSaveSuccessful = true
                     )
                 }
             }
@@ -132,7 +132,7 @@ class TareasViewModel @Inject constructor(
     }
 }
 
-// Extensión para convertir el estado UI en entidad
+
 private fun TareaUiState.toEntity(): TareaEntity {
     return TareaEntity(
         tareaId = this.tareaId ?: 0,
