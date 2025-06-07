@@ -1,19 +1,15 @@
+// AppNavigation.kt
 package edu.ucne.joserivera_ap2_p1.presentation.navigation
 
-
-import TareaListScreen
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import edu.ucne.joserivera_ap2_p1.data.local.entities.TareaEntity
 import edu.ucne.joserivera_ap2_p1.presentation.HomeScreen
-import edu.ucne.joserivera_ap2_p1.presentation.tareas.DeleteTareaScreen
-import edu.ucne.joserivera_ap2_p1.presentation.tareas.TareaEditarScreen
-import edu.ucne.joserivera_ap2_p1.presentation.tareas.TareaScreen
-import edu.ucne.joserivera_ap2_p1.presentation.tareas.TareaviewModel
+import edu.ucne.joserivera_ap2_p1.presentation.tareas.*
 
 @Composable
 fun AppNavigation(
@@ -21,6 +17,7 @@ fun AppNavigation(
     viewModel: TareaviewModel
 ) {
     val tarealist by viewModel.tarealist.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
 
     NavHost(
         navController = navController,
@@ -39,36 +36,44 @@ fun AppNavigation(
             )
         }
 
-
         composable("tarea_nueva") {
-            TareaScreen(
-                tarea = TareaEntity(),
-                onGuardar = { descripcion, tiempo, _ ->
-                    viewModel.agregarTarea(descripcion, tiempo)
-                    navController.popBackStack()
-                },
-                onCancelar = { navController.popBackStack() }
+            TareaBodyScreen(
+                uiState = uiState,
+                onEvent = viewModel::onEvent,
+                goBack = { navController.popBackStack() }
             )
         }
 
         composable("editar_tarea/{tareaId}") { backStackEntry ->
             val tareaId = backStackEntry.arguments?.getString("tareaId")?.toIntOrNull() ?: 0
-            TareaEditarScreen(
-                tareaId = tareaId,
-                viewModel = viewModel,
-                onGuardar = { navController.popBackStack() },
-                onCancelar = { navController.popBackStack() }
+            LaunchedEffect(tareaId) {
+                viewModel.loadTarea(tareaId)
+            }
+
+            TareaBodyScreen(
+                uiState = uiState,
+                onEvent = viewModel::onEvent,
+                goBack = { navController.popBackStack() }
             )
         }
 
         composable("eliminar_tarea/{tareaId}") { backStackEntry ->
             val tareaId = backStackEntry.arguments?.getString("tareaId")?.toIntOrNull() ?: 0
-            DeleteTareaScreen(
-                viewModel = viewModel,
-                tareaId = tareaId,
-                goBack = { navController.popBackStack() }
-            )
-        }
+            val tarea = viewModel.getTareaById(tareaId)
 
+            if (tarea != null) {
+                DeleteTareaScreen(
+                    tarea = tarea,
+                    onDelete = {
+                        viewModel.deleteTarea(it)
+                        navController.popBackStack()
+                    },
+                    onCancel = { navController.popBackStack() }
+                )
+            } else {
+                // Mostrar mensaje de error o redirigir
+                navController.popBackStack()
+            }
+        }
     }
 }
