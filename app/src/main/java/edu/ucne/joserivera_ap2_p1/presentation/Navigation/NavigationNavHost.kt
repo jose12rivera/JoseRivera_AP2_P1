@@ -1,6 +1,5 @@
 package edu.ucne.joserivera_ap2_p1.presentation.navigation
 
-
 import TareaListScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -39,12 +38,11 @@ fun AppNavigation(
             )
         }
 
-
         composable("tarea_nueva") {
             TareaScreen(
                 tarea = TareaEntity(),
-                onGuardar = { descripcion, tiempo, _ ->
-                    viewModel.agregarTarea(descripcion, tiempo)
+                viewModel = viewModel,
+                onGuardar = {
                     navController.popBackStack()
                 },
                 onCancelar = { navController.popBackStack() }
@@ -69,6 +67,5 @@ fun AppNavigation(
                 goBack = { navController.popBackStack() }
             )
         }
-
     }
 }
