@@ -1,3 +1,4 @@
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -41,7 +43,7 @@ fun TareaListScreen(
             FloatingActionButton(
                 onClick = onCreate,
                 containerColor = Color(0xFF6650a4),
-                contentColor = Color.White
+                contentColor = Color.Green
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Agregar")
             }
@@ -50,19 +52,24 @@ fun TareaListScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(Color(0xFF6650a4), Color(0xFF9370DB))
+                    )
+                )
                 .padding(padding)
                 .padding(16.dp)
         ) {
             Text(
-                text = "Lista de tareas",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
+                text = "📋 Lista de Tareas",
+                fontSize = 26.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = Color.White,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -80,8 +87,6 @@ fun TareaListScreen(
     }
 }
 
-
-
 @Composable
 fun TareaRow(
     tarea: TareaEntity,
@@ -90,7 +95,8 @@ fun TareaRow(
 ) {
     Card(
         elevation = CardDefaults.cardElevation(4.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Row(
             modifier = Modifier
@@ -103,11 +109,14 @@ fun TareaRow(
                 Text(
                     text = "Descripción: ${tarea.descripcion}",
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF333333)
                 )
                 Text(
                     text = "Tiempo: ${tarea.tiempo} minutos",
-                    fontSize = 14.sp
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF444444)
                 )
             }
 
