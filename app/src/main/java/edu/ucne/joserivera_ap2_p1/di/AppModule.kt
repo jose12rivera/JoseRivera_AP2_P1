@@ -7,8 +7,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import edu.ucne.joserivera_ap2_p1.data.local.database.AppDatabase
 import edu.ucne.joserivera_ap2_p1.data.local.dao.TareaDao
+import edu.ucne.joserivera_ap2_p1.data.local.database.TareaDb
 import javax.inject.Singleton
 
 @Module
@@ -17,16 +17,17 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase =
+    fun provideAppDatabase(@ApplicationContext context: Context): TareaDb =
         Room.databaseBuilder(
             context,
-            AppDatabase::class.java,
-            "app_database.db"
+            TareaDb::class.java,
+            "tareadb.db"
         )
             .fallbackToDestructiveMigration()
             .build()
 
     @Provides
     @Singleton
-    fun provideTareaDao(appDatabase: AppDatabase): TareaDao = appDatabase.tareaDao()
+    fun provideTareaDao(appDatabase: TareaDb): TareaDao =
+        appDatabase.tareaDao()
 }
